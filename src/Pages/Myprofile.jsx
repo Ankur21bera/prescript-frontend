@@ -41,7 +41,8 @@ const Myprofile = () => {
     .then((res) => {
       const updatedUser = res.payload.updatedUser; 
       setUserData(updatedUser);  
-      setImageFile(null);        
+      setImageFile(null);     
+      setIsEdit(false)   
       toast.success("Profile Updated Successfully");
     })
     .catch(() => {
