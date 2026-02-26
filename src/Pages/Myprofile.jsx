@@ -7,8 +7,10 @@ import { Button, Card, TextInput } from "flowbite-react";
 const Myprofile = () => {
   const dispatch = useDispatch();
   const { user, token } = useSelector((state) => state.doctor);
+
   const [isEdit, setIsEdit] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -18,158 +20,154 @@ const Myprofile = () => {
     dob: "",
     image: "",
   });
-  useEffect(() => {
-    if (token) {
-      dispatch(fetchProfile());
-    }
-  }, [token]);
 
+  /* 🔝 Scroll to top */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  /* Fetch profile */
+  useEffect(() => {
+    if (token) dispatch(fetchProfile());
+  }, [token, dispatch]);
+
+  /* Sync user data */
   useEffect(() => {
     if (user) setUserData(user);
   }, [user]);
 
   const handleUpdate = () => {
-  const formData = new FormData();
-  formData.append("name", userData.name);
-  formData.append("phone", userData.phone);
-  formData.append("dob", userData.dob);
-  formData.append("gender", userData.gender);
-  formData.append("address", JSON.stringify(userData.address));
-  if (imageFile) formData.append("image", imageFile);
+    const formData = new FormData();
+    formData.append("name", userData.name);
+    formData.append("phone", userData.phone);
+    formData.append("dob", userData.dob);
+    formData.append("gender", userData.gender);
+    formData.append("address", JSON.stringify(userData.address));
+    if (imageFile) formData.append("image", imageFile);
 
-  dispatch(updateProfile(formData))
-    .then((res) => {
-      const updatedUser = res.payload.updatedUser; 
-      setUserData(updatedUser);  
-      setImageFile(null);     
-      setIsEdit(false)   
-      toast.success("Profile Updated Successfully");
-    })
-    .catch(() => {
-      toast.error("Failed To Update Profile");
-    });
-};
+    dispatch(updateProfile(formData))
+      .then((res) => {
+        setUserData(res.payload.updatedUser);
+        setImageFile(null);
+        setIsEdit(false);
+        toast.success("Profile Updated Successfully");
+      })
+      .catch(() => toast.error("Failed To Update Profile"));
+  };
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
-      <Card className="shadow-lg p-6">
+    <div className="max-w-4xl mx-auto px-4 py-6">
+      <Card className="p-4 sm:p-6">
+
+        {/* PROFILE IMAGE */}
         <div className="flex flex-col items-center text-center">
           <img
-            className="w-32 h-32 rounded-full border shadow object-cover"
             src={imageFile ? URL.createObjectURL(imageFile) : userData.image}
             alt=""
+            className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border"
           />
+
           {isEdit && (
-            <label className="mt-3 flex flex-col items-center justify-center w-full cursor-pointer">
-              <div className="flex flex-col items-center justify-center bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl px-4 py-3 transition">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-8 h-8 text-blue-600"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M3 16.5v-9A2.25 2.25 0 015.25 5h13.5A2.25 2.25 0 0121 7.5v9M3 16.5l6.664-6.664a2.25 2.25 0 013.182 0L21 16.5"
-                  />
-                </svg>
-
-                <p className="text-sm text-gray-700 mt-2">
-                  <span className="font-medium text-blue-600">
-                    Click to upload
-                  </span>{" "}
-                  or drag & drop
-                </p>
-                <p className="text-xs text-gray-500">
-                  PNG, JPG, JPEG (Max 2MB)
-                </p>
-              </div>
-
+            <label className="mt-3 cursor-pointer">
               <input
                 type="file"
+                hidden
                 accept="image/*"
-                className="hidden"
                 onChange={(e) => setImageFile(e.target.files[0])}
               />
+              <span className="text-sm text-blue-600 hover:underline">
+                Change Profile Photo
+              </span>
             </label>
           )}
+
           {isEdit ? (
             <TextInput
-              className="mt-3 w-60 text-center"
+              className="mt-3 w-full sm:w-64 text-center"
               value={userData.name}
               onChange={(e) =>
                 setUserData({ ...userData, name: e.target.value })
               }
             />
           ) : (
-            <p className="text-2xl font-semibold mt-3">{userData.name}</p>
+            <h2 className="mt-3 text-xl font-semibold">{userData.name}</h2>
           )}
         </div>
+
         <hr className="my-6" />
 
-        <div className="grid gap-5">
+        {/* PROFILE DETAILS */}
+        <div className="space-y-4">
+
           <ProfileRow
-            label="Name"
-            isEdit={isEdit}
-            value={userData.name}
-            onChange={(v) => setUserData({ ...userData, name: v })}
+            label="Email"
+            value={userData.email}
+            disabled
           />
-          <div className="flex">
-            <ProfileRow label="Email" disabled />{" "}
-            <p className="ml-[-48px] sm:ml-[2px]">{userData.email}</p>
-          </div>
+
           <ProfileRow
             label="Phone"
             isEdit={isEdit}
             value={userData.phone}
-            onChange={(e) => setUserData({ ...userData, phone: e })}
+            onChange={(v) =>
+              setUserData({ ...userData, phone: v })
+            }
           />
-          <div className="grid grid-cols-[120px_1fr] gap-3 items-start">
-            <p className="font-semibold">Address:</p>
+
+          {/* Address */}
+          <div className="space-y-2">
+            <p className="font-semibold">Address</p>
 
             {isEdit ? (
-              <div className="space-y-2">
+              <>
                 <TextInput
-                  value={userData?.address?.line1 || ""}
+                  placeholder="Address Line 1"
+                  value={userData.address?.line1 || ""}
                   onChange={(e) =>
                     setUserData({
                       ...userData,
-                      address: { ...userData.address, line1: e.target.value },
+                      address: {
+                        ...userData.address,
+                        line1: e.target.value,
+                      },
                     })
                   }
                 />
                 <TextInput
-                  value={userData?.address?.line2 || ""}
+                  placeholder="Address Line 2"
+                  value={userData.address?.line2 || ""}
                   onChange={(e) =>
                     setUserData({
                       ...userData,
-                      address: { ...userData.address, line2: e.target.value },
+                      address: {
+                        ...userData.address,
+                        line2: e.target.value,
+                      },
                     })
                   }
                 />
-              </div>
+              </>
             ) : (
               <p className="text-gray-700">
-                {userData?.address?.line1 || ""}
+                {userData.address?.line1}
                 <br />
-                {userData?.address?.line2 || ""}
+                {userData.address?.line2}
               </p>
             )}
           </div>
 
-          <div className="grid grid-cols-[120px_1fr] gap-3">
-            <p className="font-semibold">Gender:</p>
+          {/* Gender */}
+          <div>
+            <p className="font-semibold mb-1">Gender</p>
             {isEdit ? (
               <select
+                className="w-full border rounded-md p-2"
                 value={userData.gender}
                 onChange={(e) =>
                   setUserData({ ...userData, gender: e.target.value })
                 }
               >
-                <option>Select Gender</option>
+                <option value="">Select Gender</option>
                 <option>Male</option>
                 <option>Female</option>
               </select>
@@ -177,28 +175,26 @@ const Myprofile = () => {
               <p>{userData.gender}</p>
             )}
           </div>
+
           <ProfileRow
-            label="DOB"
+            label="Date of Birth"
             isEdit={isEdit}
             type="date"
             value={userData.dob}
-            onChange={(v) => setUserData({ ...userData, dob: v })}
+            onChange={(v) =>
+              setUserData({ ...userData, dob: v })
+            }
           />
         </div>
+
+        {/* ACTION BUTTON */}
         <div className="mt-8 flex justify-center">
           {isEdit ? (
-            <Button
-              onClick={handleUpdate}
-              color="blue"
-              className="w-40 cursor-pointer"
-            >
-              Save
+            <Button onClick={handleUpdate} className="w-40">
+              Save Changes
             </Button>
           ) : (
-            <Button
-              onClick={() => setIsEdit(true)}
-              className="w-40 cursor-pointer"
-            >
+            <Button onClick={() => setIsEdit(true)} className="w-40">
               Edit Profile
             </Button>
           )}
@@ -208,6 +204,7 @@ const Myprofile = () => {
   );
 };
 
+/* Reusable row */
 const ProfileRow = ({
   label,
   value,
@@ -217,16 +214,17 @@ const ProfileRow = ({
   disabled,
 }) => {
   return (
-    <div className="grid grid-cols-[120px_1fr] gap-3 items-center">
-      <p className="font-semibold">{label}:</p>
+    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+      <p className="sm:w-32 font-semibold">{label}</p>
       {isEdit && !disabled ? (
         <TextInput
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          className="w-full"
         />
       ) : (
-        <p className="text-gray-700 break-all">{value}</p>
+        <p className="text-gray-700 break-words">{value}</p>
       )}
     </div>
   );
