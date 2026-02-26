@@ -270,7 +270,7 @@ const Login = () => {
               type="submit" 
               className="bg-blue-600 text-white w-full p-2 rounded-md cursor-pointer text-base"
             >
-              {loading ? "Sending..." : "Send Reset Link"}
+              {loading ? "Resetting..." : "Reset Your Password"}
             </button>
 
             <p>
