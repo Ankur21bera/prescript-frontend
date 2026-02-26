@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
 import axios from "axios";
@@ -124,6 +124,10 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  useEffect(()=>{
+    window.scrollTo(0,0)
+  },[])
 
   return (
     <form className="min-h-[80vh] flex items-center" onSubmit={onSubmitHandler}>
@@ -270,7 +274,7 @@ const Login = () => {
               type="submit" 
               className="bg-blue-600 text-white w-full p-2 rounded-md cursor-pointer text-base"
             >
-              {loading ? "Resetting..." : "Reset Your Password"}
+              {loading ? "Sending..." : "Send Reset Link"}
             </button>
 
             <p>
